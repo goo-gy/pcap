@@ -42,7 +42,7 @@ int main()
 		char errbuf[PCAP_ERRBUF_SIZE];          //What is PCAP_ERRBUF_SIZE
 		pcap_t *handle;
 		struct bpf_program fp;
-		char filter_exp[] = "port 80";
+		char filter_exp[] = "tcp port 80";
 		bpf_u_int32 mask;
 		bpf_u_int32 net;	
 
