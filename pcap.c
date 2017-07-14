@@ -11,7 +11,7 @@ unsigned char ip(ip_h *packet, unsigned short *length)
 	printf("SRC: ");
 	for (int i = 0; i < 4; i++)
 		printf("%d.", packet->src[i]);
-	printf("\t DST: ");
+	printf("\t\tDST: ");
 	for (int i = 0; i < 4; i++)
 		printf("%d.", packet->dst[i]);
 	printf("\n");
@@ -21,19 +21,19 @@ unsigned char ip(ip_h *packet, unsigned short *length)
 unsigned char tcp(tcp_h *packet)
 {
 	printf("[TCP]\n");
-	printf("SRC PORT: %d\tDST PORT: %d\n", packet->src_port[0]*0x100+packet->src_port[1], packet->dst_port[0]*0x100+packet->dst_port[1]);
+	printf("SRC PORT: %d\t\t\tDST PORT: %d\n", packet->src_port[0]*0x100+packet->src_port[1], packet->dst_port[0]*0x100+packet->dst_port[1]);
 	return (packet->offset_res>>4);
 }
 
 void data(unsigned char *packet, unsigned short length)
 {
-	printf("%d\n", length);
+	printf("Data length: %d\n", length);
 	int i;
-	for (i = 0; i < length; i++)
+	for (i = 0; i < length && i < 1460; i++)
 	{
 		printf("%02x ", packet[i]);
 	}
-	printf("\n");
+	printf("\n\n");
 }
 
 int main()
@@ -107,10 +107,9 @@ int main()
 				ver_IHL = ip((ip_h*)(packet+14), &total_length);
 				IHL = ver_IHL & 0xf;
 				tcp_offset = tcp((tcp_h*)(packet+14+IHL*4));
-				printf("total length: %d\n", total_length);
-				printf("ip length: %d\n", IHL*4);
-				printf("tcp length: %d\n", tcp_offset*4);
-				printf("%d\n", total_length-IHL*4-tcp_offset*4);
+				printf("Total packet length: %d\n", total_length);
+				printf("Ip header length: %d\n", IHL*4);
+				printf("Tcp header length: %d\n", tcp_offset*4);
 				data((unsigned char*)(packet+14+IHL*4+tcp_offset*4), total_length-IHL*4-tcp_offset*4);
 			}
 			packet = NULL;
