@@ -40,6 +40,7 @@ int main()
 {
 		char *dev;
 		char errbuf[PCAP_ERRBUF_SIZE];          //What is PCAP_ERRBUF_SIZE
+		int is_ok;
 		pcap_t *handle;
 		struct bpf_program fp;
 		char filter_exp[] = "tcp port 80";
@@ -80,7 +81,10 @@ int main()
 
 		while (1)
 		{
-			pcap_next_ex(handle, &header, &packet);
+			is_ok = pcap_next_ex(handle, &header, &packet);
+			if(is_ok == 0)
+				continue;
+
 			ethernet = (ether_h*)(packet);
 			if (ethernet->type == 8)
 			{
