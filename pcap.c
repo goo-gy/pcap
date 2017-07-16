@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <pcap.h>
 #include <string.h>
-#include <stdlib.h>
 #include "header.h"
 	
 unsigned char ip(ip_h *packet, unsigned short *length)
@@ -39,7 +38,7 @@ void data(unsigned char *packet, unsigned short length)
 int main()
 {
 		char *dev;
-		char errbuf[PCAP_ERRBUF_SIZE];          //What is PCAP_ERRBUF_SIZE
+		char errbuf[PCAP_ERRBUF_SIZE];    
 		int is_ok;
 		pcap_t *handle;
 		struct bpf_program fp;
@@ -56,7 +55,6 @@ int main()
 		unsigned char IHL;
 		unsigned short total_length;
 		unsigned char tcp_offset;
-
 
 		dev = pcap_lookupdev(errbuf);
 
@@ -86,15 +84,6 @@ int main()
 				continue;
 
 			ethernet = (ether_h*)(packet);		// raw data -> ethernet header data
-
-			if (ethernet->type == 8)
-			{
-				strcpy(type, "IP");
-			}
-			else if (ethernet->type == 1544)
-				strcpy(type, "ARP");
-			else
-				strcpy(type, "NO");
 			printf("[Ethernet]\n");
 			printf("SRC MAC");
 			for (int i = 0; i < 6; i++)
