@@ -31,7 +31,7 @@ void data(unsigned char *packet, unsigned short length)
 	int i;
 	for (i = 0; i < length && i < 1460; i++)
 	{
-		printf("%02x ", packet[i]);
+		printf("%c ", packet[i]);
 	}
 	printf("\n\n");
 }
@@ -85,7 +85,8 @@ int main()
 			if(is_ok == 0)
 				continue;
 
-			ethernet = (ether_h*)(packet);
+			ethernet = (ether_h*)(packet);		// raw data -> ethernet header data
+
 			if (ethernet->type == 8)
 			{
 				strcpy(type, "IP");
