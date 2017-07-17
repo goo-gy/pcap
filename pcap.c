@@ -50,7 +50,6 @@ int main()
 		ether_h *ethernet;
 		const u_char *packet;
 
-		unsigned char type[5] = "N";
 		unsigned char ver_IHL;
 		unsigned char IHL;
 		unsigned short total_length;
@@ -95,7 +94,6 @@ int main()
 			{
 				printf(":%02x", ethernet->dst[i]);
 			}
-			printf("\t[%s]\n", type);
 			if(ethernet->type == 0x8)
 			{
 				ver_IHL = ip((ip_h*)(packet+14), &total_length);
