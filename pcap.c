@@ -1,9 +1,10 @@
 #include <stdio.h>
 #include <pcap.h>
 #include <string.h>
+#include <netinet/in.h>
 #include "header.h"
 	
-unsigned char ip(ip_h *packet, unsigned short *length)
+unsigned char ip(ip_h *packet, unsigned short *length, unsigned char *protocol)
 {
 	*length = (packet->total_length[0])*0x100 + packet->total_length[1];
 	printf("[IP]\n");
@@ -14,6 +15,7 @@ unsigned char ip(ip_h *packet, unsigned short *length)
 	for (int i = 0; i < 4; i++)
 		printf("%d.", packet->dst[i]);
 	printf("\n");
+	*protocol = htons(packet->protocol);
 	return packet->ver_IHL;
 }
 
@@ -41,11 +43,6 @@ int main()
 		char errbuf[PCAP_ERRBUF_SIZE];    
 		int is_ok;
 		pcap_t *handle;
-		struct bpf_program fp;
-		char filter_exp[] = "tcp port 80";
-		bpf_u_int32 mask;
-		bpf_u_int32 net;	
-
 		struct pcap_pkthdr *header;
 		ether_h *ethernet;
 		const u_char *packet;
@@ -53,29 +50,13 @@ int main()
 		unsigned char ver_IHL;
 		unsigned char IHL;
 		unsigned short total_length;
+		unsigned char protocol;
 		unsigned char tcp_offset;
 
 		dev = pcap_lookupdev(errbuf);
 
-		if (pcap_lookupnet(dev, &net, &mask, errbuf) == -1) 
-		{
-			fprintf(stderr, "Couldn't get netmask for device %s: %s\n", dev, errbuf);
-			net = 0;
-			mask = 0;
-		}
-
 		handle = pcap_open_live(dev, BUFSIZ, 1, 1000, errbuf);
-
 		
-		if (pcap_compile(handle, &fp, filter_exp, 0, net) == -1) {
-			fprintf(stderr, "Couldn't parse filter %s: %s\n", filter_exp, pcap_geterr(handle));
-			return(2);
-		}
-		if (pcap_setfilter(handle, &fp) == -1) {
-			fprintf(stderr, "Couldn't install filter %s: %s\n", filter_exp, pcap_geterr(handle));
-			return(2);
-		}
-
 		while (1)
 		{
 			is_ok = pcap_next_ex(handle, &header, &packet);
@@ -94,17 +75,27 @@ int main()
 			{
 				printf(":%02x", ethernet->dst[i]);
 			}
-			if(ethernet->type == 0x8)
+			printf("\n");
+			if(htons(ethernet->type) == 0x0800)
 			{
-				ver_IHL = ip((ip_h*)(packet+14), &total_length);
+				ver_IHL = ip((ip_h*)(packet+14), &total_length, &protocol);
 				IHL = ver_IHL & 0xf;
-				tcp_offset = tcp((tcp_h*)(packet+14+IHL*4));
 				printf("Total packet length: %d\n", total_length);
 				printf("Ip header length: %d\n", IHL*4);
-				printf("Tcp header length: %d\n", tcp_offset*4);
-				data((unsigned char*)(packet+14+IHL*4+tcp_offset*4), total_length-IHL*4-tcp_offset*4);
+				if(protocol == 0x6)
+				{
+					tcp_offset = tcp((tcp_h*)(packet+14+IHL*4));
+					printf("Tcp header length: %d\n", tcp_offset*4);
+					data((unsigned char*)(packet+14+IHL*4+tcp_offset*4), total_length-IHL*4-tcp_offset*4);
+				}
+				else if(protocol == 0x11)
+					printf("[UDP]\n");
 			}
-			packet = NULL;
+			else if(htons(ethernet->type) == 0x0806)
+				printf("[ARP]\n");
+			else
+				printf("[Else]\n");
+			packet = NULL;			//need?
 		}
 		pcap_close(handle);
 		return 0;
