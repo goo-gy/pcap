@@ -15,13 +15,12 @@ unsigned char ip(ip_h *packet, unsigned short *length, unsigned char *protocol)
 	for (int i = 0; i < 4; i++)
 		printf("%d.", packet->dst[i]);
 	printf("\n");
-	*protocol = htons(packet->protocol);
+	*protocol = packet->protocol;
 	return packet->ver_IHL;
 }
 
 unsigned char tcp(tcp_h *packet)
 {
-	printf("[TCP]\n");
 	printf("SRC PORT: %d\t\t\tDST PORT: %d\n", packet->src_port[0]*0x100+packet->src_port[1], packet->dst_port[0]*0x100+packet->dst_port[1]);
 	return (packet->offset_res>>4);
 }
@@ -84,6 +83,7 @@ int main()
 				printf("Ip header length: %d\n", IHL*4);
 				if(protocol == 0x6)
 				{
+					printf("[TCP]\n");
 					tcp_offset = tcp((tcp_h*)(packet+14+IHL*4));
 					printf("Tcp header length: %d\n", tcp_offset*4);
 					data((unsigned char*)(packet+14+IHL*4+tcp_offset*4), total_length-IHL*4-tcp_offset*4);
