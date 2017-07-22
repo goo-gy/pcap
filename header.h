@@ -9,19 +9,20 @@ typedef struct ip_header
 {
 	unsigned char ver_IHL;
 	unsigned char TOS;
-	unsigned char total_length[2];
-	unsigned char something[4];
+	unsigned short total_length;
+	unsigned int something;
 	unsigned char TTL;
 	unsigned char protocol;
-	unsigned char checksum[2];
+	unsigned short checksum;
 	unsigned char src[4];
 	unsigned char dst[4];
 }ip_h;
 
 typedef struct tcp_header
 {
-	unsigned char src_port[2];
-	unsigned char dst_port[2];
-	unsigned int don_use[2];
+	unsigned short src_port;
+	unsigned short dst_port;
+	unsigned int seq_number;
+	unsigned int ack_number;
 	unsigned char offset_res;
 }tcp_h;

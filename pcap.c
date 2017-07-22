@@ -6,7 +6,7 @@
 	
 unsigned char ip(ip_h *packet, unsigned short *length, unsigned char *protocol)
 {
-	*length = (packet->total_length[0])*0x100 + packet->total_length[1];
+	*length = htons(packet->total_length);
 	printf("[IP]\n");
 	printf("SRC: ");
 	for (int i = 0; i < 4; i++)
@@ -21,7 +21,7 @@ unsigned char ip(ip_h *packet, unsigned short *length, unsigned char *protocol)
 
 unsigned char tcp(tcp_h *packet)
 {
-	printf("SRC PORT: %d\t\t\tDST PORT: %d\n", packet->src_port[0]*0x100+packet->src_port[1], packet->dst_port[0]*0x100+packet->dst_port[1]);
+	printf("SRC PORT: %d\t\t\tDST PORT: %d\n", htons(packet->src_port), htons(packet->dst_port));
 	return (packet->offset_res>>4);
 }
 
