@@ -25,7 +25,7 @@ unsigned char tcp(tcp_h *packet, unsigned char *tcp_header_length)
 {
 	unsigned char is_http = 0;
 	unsigned short src_port, dst_port;
-	printf("SRC PORT: %d\t\t\tDST PORT: %d\n", src_port = htons(packet->src_port), src_port = htons(packet->dst_port));
+	printf("SRC PORT: %d\t\t\tDST PORT: %d\n", src_port = htons(packet->src_port), dst_port = htons(packet->dst_port));
 
 	if(src_port == 80 || dst_port == 80)
 		is_http = 1;
