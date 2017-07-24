@@ -37,12 +37,13 @@ unsigned char tcp(tcp_h *packet, unsigned char *tcp_header_length)
 void data(unsigned char *packet, unsigned short length)
 {
 	printf("Data length: %d\n", length);
+	printf("---------------------------------------------------------------\n");
 	int i;
 	for (i = 0; i < length && i < 1460; i++)
 	{
-		printf("%c ", packet[i]);
+		printf("%c", packet[i]);
 	}
-	printf("\n\n");
+	printf("---------------------------------------------------------------\n\n");
 }
 
 int main()
@@ -62,9 +63,19 @@ int main()
 		unsigned char tcp_header_length;
 		unsigned char is_http = 0;
 
-		dev = pcap_lookupdev(errbuf);
-
-		handle = pcap_open_live(dev, BUFSIZ, 1, 1000, errbuf);
+		printf("[Select Interface]\n1.Auto\n2.dum0\n");
+		int select;
+		do
+		{
+			scanf("%d", &select);
+			if(select == 1)
+			{
+				dev = pcap_lookupdev(errbuf);
+				handle = pcap_open_live(dev, BUFSIZ, 1, 1000, errbuf);
+			}
+			else if(select == 2)
+				handle = pcap_open_live("dum0", BUFSIZ, 1, 1000, errbuf);
+		}while(select != 1 && select !=2);
 		
 		while (1)
 		{
@@ -102,16 +113,16 @@ int main()
 					}
 					else
 					{
-						printf("[Not HTTP]\n");
+						printf("[Not HTTP]\n\n");
 					}
 				}
 				else if(protocol == 0x11)
-					printf("[UDP]\n");
+					printf("[UDP]\n\n");
 			}
 			else if(htons(ethernet->type) == 0x0806)
-				printf("[ARP]\n");
+				printf("[ARP]\n\n");
 			else
-				printf("[Else]\n");
+				printf("[Else]\n\n");
 			packet = NULL;			//need?
 		}
 		pcap_close(handle);
