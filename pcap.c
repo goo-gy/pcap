@@ -4,9 +4,11 @@
 #include <netinet/in.h>
 #include "header.h"
 	
-unsigned char ip(ip_h *packet, unsigned short *length, unsigned char *protocol)
+unsigned char ip(ip_h *packet, unsigned short *total_length, unsigned char *ip_header_length)
 {
-	*length = htons(packet->total_length);
+	*total_length = htons(packet->total_length);
+	*ip_header_length = (packet->ver_IHL & 0xf)*4;
+
 	printf("[IP]\n");
 	printf("SRC: ");
 	for (int i = 0; i < 4; i++)
@@ -15,14 +17,21 @@ unsigned char ip(ip_h *packet, unsigned short *length, unsigned char *protocol)
 	for (int i = 0; i < 4; i++)
 		printf("%d.", packet->dst[i]);
 	printf("\n");
-	*protocol = packet->protocol;
-	return packet->ver_IHL;
+
+	return packet->protocol;
 }
 
-unsigned char tcp(tcp_h *packet)
+unsigned char tcp(tcp_h *packet, unsigned char *tcp_header_length)
 {
-	printf("SRC PORT: %d\t\t\tDST PORT: %d\n", htons(packet->src_port), htons(packet->dst_port));
-	return (packet->offset_res>>4);
+	unsigned char is_http = 0;
+	unsigned short src_port, dst_port;
+	printf("SRC PORT: %d\t\t\tDST PORT: %d\n", src_port = htons(packet->src_port), src_port = htons(packet->dst_port));
+
+	if(src_port == 80 || dst_port == 80)
+		is_http = 1;
+
+	*tcp_header_length = (packet->offset_res>>4)*4;
+	return is_http;
 }
 
 void data(unsigned char *packet, unsigned short length)
@@ -46,11 +55,12 @@ int main()
 		ether_h *ethernet;
 		const u_char *packet;
 
-		unsigned char ver_IHL;
-		unsigned char IHL;
 		unsigned short total_length;
+		unsigned char ip_header_length;
 		unsigned char protocol;
-		unsigned char tcp_offset;
+
+		unsigned char tcp_header_length;
+		unsigned char is_http = 0;
 
 		dev = pcap_lookupdev(errbuf);
 
@@ -77,16 +87,23 @@ int main()
 			printf("\n");
 			if(htons(ethernet->type) == 0x0800)
 			{
-				ver_IHL = ip((ip_h*)(packet+14), &total_length, &protocol);
-				IHL = ver_IHL & 0xf;
+				protocol = ip((ip_h*)(packet+14), &total_length, &ip_header_length);
 				printf("Total packet length: %d\n", total_length);
-				printf("Ip header length: %d\n", IHL*4);
+				printf("Ip header length: %d\n", ip_header_length);
 				if(protocol == 0x6)
 				{
 					printf("[TCP]\n");
-					tcp_offset = tcp((tcp_h*)(packet+14+IHL*4));
-					printf("Tcp header length: %d\n", tcp_offset*4);
-					data((unsigned char*)(packet+14+IHL*4+tcp_offset*4), total_length-IHL*4-tcp_offset*4);
+					is_http = tcp((tcp_h*)(packet+14+ip_header_length), &tcp_header_length);
+					printf("Tcp header length: %d\n", tcp_header_length);
+					if(is_http == 1)
+					{
+						printf("[HTTP]\n");
+						data((unsigned char*)(packet+14+ip_header_length+tcp_header_length), total_length-ip_header_length-tcp_header_length);
+					}
+					else
+					{
+						printf("[Not HTTP]\n");
+					}
 				}
 				else if(protocol == 0x11)
 					printf("[UDP]\n");
