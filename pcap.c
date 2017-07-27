@@ -46,12 +46,12 @@ void data(unsigned char *packet, unsigned short length)
 	printf("---------------------------------------------------------------\n\n");
 }
 
-int main()
+int main(int argc, char *argv[])
 {
 		char *dev;
 		char errbuf[PCAP_ERRBUF_SIZE];    
 		int is_ok;
-		pcap_t *handle;
+		pcap_t *handle = NULL;
 		struct pcap_pkthdr *header;
 		ether_h *ethernet;
 		const u_char *packet;
@@ -65,23 +65,39 @@ int main()
 
 		printf("[Select Interface]\n1.Auto\n2.dum0\n");
 		int select;
-		do
+
+		if(argc == 1)
 		{
-			scanf("%d", &select);
-			if(select == 1)
-			{
-				dev = pcap_lookupdev(errbuf);
-				handle = pcap_open_live(dev, BUFSIZ, 1, 1000, errbuf);
-			}
-			else if(select == 2)
-				handle = pcap_open_live("dum0", BUFSIZ, 1, 1000, errbuf);
-		}while(select != 1 && select !=2);
-		
+			dev = pcap_lookupdev(errbuf);
+			handle = pcap_open_live(dev, BUFSIZ, 1, 1000, errbuf);
+		}
+		else if(argc ==2)
+		{
+			handle = pcap_open_live(argv[1], BUFSIZ, 1, 1000, errbuf);
+		}
+		else
+		{
+			printf("Please Just one device.\n");
+			return 0;
+		}
+		if(!handle)
+		{
+			printf("Device is not loaded.\n");	
+			return 0;
+		}
+	
 		while (1)
 		{
 			is_ok = pcap_next_ex(handle, &header, &packet);
 			if(is_ok == 0)
 				continue;
+			else if(is_ok == -1)
+				break;
+			else if(is_ok == -2)
+			{
+				printf("[End of File]\n");
+				break;
+			}
 
 			ethernet = (ether_h*)(packet);		// raw data -> ethernet header data
 			printf("[Ethernet]\n");
