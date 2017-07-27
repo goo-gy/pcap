@@ -5,6 +5,17 @@ typedef struct ethernet_header
 		unsigned short type;
 }ether_h;
 
+typedef struct arp_header
+{
+	unsigned short hard_type;
+	unsigned short proto_type;
+	unsigned char H_P_length;
+	unsigned char src_hard[6];
+	unsigned char src_proto[4];
+	unsigned char dst_hard[6];
+	unsigned char dst_proto[4];
+}arp_h;
+
 typedef struct ip_header
 {
 	unsigned char ver_IHL;
