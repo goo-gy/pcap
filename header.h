@@ -9,7 +9,9 @@ typedef struct arp_header
 {
 	unsigned short hard_type;
 	unsigned short proto_type;
-	unsigned char H_P_length;
+	unsigned char hard_length;
+	unsigned char proto_length;
+	unsigned short opcode;
 	unsigned char src_hard[6];
 	unsigned char src_proto[4];
 	unsigned char dst_hard[6];
