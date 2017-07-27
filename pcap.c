@@ -63,9 +63,6 @@ int main(int argc, char *argv[])
 		unsigned char tcp_header_length;
 		unsigned char is_http = 0;
 
-		printf("[Select Interface]\n1.Auto\n2.dum0\n");
-		int select;
-
 		if(argc == 1)
 		{
 			dev = pcap_lookupdev(errbuf);
