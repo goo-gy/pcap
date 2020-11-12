@@ -1,41 +1,41 @@
 typedef struct ethernet_header
 {
-		unsigned char dst[6];
-		unsigned char src[6];
-		unsigned short type;
+		uint8_t dst[6];
+		uint8_t src[6];
+		uint16_t type;
 }ether_h;
 
 typedef struct arp_header
 {
-	unsigned short hard_type;
-	unsigned short proto_type;
-	unsigned char hard_length;
-	unsigned char proto_length;
-	unsigned short opcode;
-	unsigned char src_hard[6];
-	unsigned char src_proto[4];
-	unsigned char dst_hard[6];
-	unsigned char dst_proto[4];
+	uint16_t hard_type;
+	uint16_t proto_type;
+	uint8_t hard_length;
+	uint8_t proto_length;
+	uint16_t opcode;
+	uint8_t src_hard[6];
+	uint8_t src_proto[4];
+	uint8_t dst_hard[6];
+	uint8_t dst_proto[4];
 }arp_h;
 
 typedef struct ip_header
 {
-	unsigned char ver_IHL;
-	unsigned char TOS;
-	unsigned short total_length;
-	unsigned int something;
-	unsigned char TTL;
-	unsigned char protocol;
-	unsigned short checksum;
-	unsigned char src[4];
-	unsigned char dst[4];
+	uint8_t ver_IHL;
+	uint8_t TOS;
+	uint16_t total_length;
+	uint32_t something;
+	uint8_t TTL;
+	uint8_t protocol;
+	uint16_t checksum;
+	uint8_t src[4];
+	uint8_t dst[4];
 }ip_h;
 
 typedef struct tcp_header
 {
-	unsigned short src_port;
-	unsigned short dst_port;
-	unsigned int seq_number;
-	unsigned int ack_number;
-	unsigned char offset_res;
+	uint16_t src_port;
+	uint16_t dst_port;
+	uint32_t seq_number;
+	uint32_t ack_number;
+	uint8_t offset_res;
 }tcp_h;
